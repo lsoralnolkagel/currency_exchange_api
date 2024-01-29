@@ -1,12 +1,17 @@
 import bcrypt
-from pydantic import BaseModel, EmailStr, constr
-
+from pydantic import BaseModel, EmailStr
+# write normal password schema
 
 
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
-    password: constr(min_length=8, pattern=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$')
+    password: str
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 
 class UserFromDB(BaseModel):
@@ -20,4 +25,4 @@ class UserFromDB(BaseModel):
         self.hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
     def check_password(self, password: str) -> bool:
-        return bcrypt.checkpw((password.encode('utf-8'), self.hashed_password.encode('utf-8'))
+        return bcrypt.checkpw((password.encode('utf-8'), self.hashed_password.encode('utf-8')))
