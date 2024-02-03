@@ -1,8 +1,9 @@
-"""import requests
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from CEA.app.api.endpoints.users import authenticate_user, get_user
-from CEA.app.api.models.user import UserLogin
+from CEA.app.core.security import authenticate_user, get_user
+from CEA.app.api.models.user import UserToLogin
+from CEA.app.api.db.database import get_db
 
 currency_router = APIRouter(prefix="/currency")
 security = HTTPBasic()
@@ -13,8 +14,9 @@ def validate_user(user: HTTPBasicCredentials = Depends(security)):
 
 
 @currency_router.get("/all/")
-async def get_all_currency_list(user: UserLogin = Depends(validate_user)):
-    if authenticate_user(get_user(user.username)):
+async def get_all_currency_list(user: UserToLogin = Depends(validate_user)):
+    db = next(get_db())
+    if user:
         url = "https://api.apilayer.com/currency_data/list"
         payload = {}
         headers = {"apikey": "th9mwKy6fXqwWd3gubGvgiaa7REE9zDI"}
@@ -23,4 +25,4 @@ async def get_all_currency_list(user: UserLogin = Depends(validate_user)):
         result = response.text
         return {status_code: result}
     else:
-        raise HTTPException(status_code=401, detail="Invalid username or password")"""
+        raise HTTPException(status_code=401, detail="Invalid username or password")
