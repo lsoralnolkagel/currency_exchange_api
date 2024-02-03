@@ -1,5 +1,6 @@
 import requests
-from fastapi import APIRouter, Depends, HTTPException
+import json
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from CEA.app.core.security import authenticate_user, get_user
 from CEA.app.api.models.user import UserToLogin
@@ -23,6 +24,12 @@ async def get_all_currency_list(user: UserToLogin = Depends(validate_user)):
         response = requests.request("GET", url, headers=headers, params=payload)
         status_code = response.status_code
         result = response.text
-        return {status_code: result}
+        if status_code == 200:
+            data = json.loads(result)
+            currencies = data.get("currencies", {})
+            formatted_currencies = "\n".join([f"{key}: {value}" for key, value in currencies.items()])
+            return Response(content=formatted_currencies, media_type="text/plain")
+        else:
+            raise HTTPException(status_code=500, detail="Failed to fetch currency list")
     else:
         raise HTTPException(status_code=401, detail="Invalid username or password")
