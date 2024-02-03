@@ -1,43 +1,25 @@
-import bcrypt
-import re
-from pydantic import BaseModel, validator, EmailStr
-# write normal password schema
+from pydantic import BaseModel
 
 
-class UserCreate(BaseModel):
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+
+class PyUser(BaseModel):
     username: str
-    email: EmailStr
-    password: str
-
-    @validator('password')
-    def check_password(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password length must be at least 8 characters")
-        if not any(char.isupper() for char in v):
-            raise ValueError("Password must contain at least 1 uppercase letter")
-        if not any(char.islower() for char in v):
-            raise ValueError("Password must contain at least 1 lowercase letter")
-        if not any(char.isdigit() for char in v):
-            raise ValueError("Password must contain at least 1 digit")
-        if not re.search(r"[!@#$%^&*()-_+=<>,.?/:;]", v):
-            raise ValueError("Password must contain at least 1 punctuation mark")
-        return v
+    email: str | None = None
+    full_name: str | None = None
+    # disabled: bool | None = None
 
 
-class UserLogin(BaseModel):
-    username: str
+class RegisterUser(PyUser):
     password: str
 
 
-class UserFromDB(BaseModel):
-    id: int
-    username: str
-    email: EmailStr
+class UserInDB(PyUser):
     hashed_password: str
-
-    def set_password(self, password: str):
-        salt = bcrypt.gensalt()
-        self.hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
-
-    def check_password(self, password: str) -> bool:
-        return bcrypt.checkpw((password.encode('utf-8'), self.hashed_password.encode('utf-8')))
