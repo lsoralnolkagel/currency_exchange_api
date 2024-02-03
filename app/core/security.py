@@ -7,8 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from sqlalchemy.sql import select
 
-from CEA.app.api.db.database import async_session_maker
-from CEA.app.api.models.user import TokenData, PyUser
+from CEA.app.api.db.database import SessionLocal
+#from CEA.app.api.models.user import
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -28,7 +28,7 @@ def get_password_hash(password):
 
 
 def get_user(username: str):
-    with async_session_maker() as session:
+    with SessionLocal as session:
         user = session.execute(select(PyUser).where(PyUser.username == username)).first()
         return user
 

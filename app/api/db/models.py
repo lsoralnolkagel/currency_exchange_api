@@ -1,4 +1,3 @@
-import asyncio
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,9 +14,4 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
 
 
-async def init_models():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-
-asyncio.run(init_models())
+Base.metadata.create_all(bind=engine)
