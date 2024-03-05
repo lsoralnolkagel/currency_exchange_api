@@ -1,16 +1,18 @@
-# This is a sample Python script.
+import uvicorn
+from fastapi import FastAPI
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from CEA.app.api.endpoints.users import user_router
+from CEA.app.api.endpoints.currency import currency_router
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+app = FastAPI()
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+@app.get("/")
+async def get_main():
+    return {"message": "Welcome to the Currency Exchange Rates API server"}
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+app.include_router(user_router)
+app.include_router(currency_router)
+
+if __name__ == "__main__":
+    uvicorn.run(app="main:app", reload=True)
